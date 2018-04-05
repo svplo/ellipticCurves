@@ -14,10 +14,9 @@ struct number_rep {
 typedef struct number number;
 typedef struct number_rep number_rep;
 
-number addition(number, number);
-number addMont(number, number);
-number multMont(number, number);
-number multiplication(number, number);
+number add(number, number);
+number mult(number, number);
+number leftShift(number, uint8_t);
 
 /** NUMBER FORMATTING */
 number fromChar(char *string, int size) {
@@ -95,7 +94,21 @@ uint8_t endsWithZero (number a){
 	return a.val[0] == 0;
 }
 
+number add(number a, number b){
+	number result;
+	return result;
+}
+
+number mult(number a, number b){
+	number result;
+	return result;
+}
+number leftShift(number a, uint8_t b){
+	number result;
+	return result;
+}
+
 number subtract(number a, number b){
 	number result;
-	return number;
+	return result;
 }

@@ -102,14 +102,14 @@ proj_coord pointAddition(proj_coord g, proj_coord h, number p, number a, number 
 	T5 = subtract(T2, T5);
 	if(isEqual(T4, zero)){
 		if(isEqual(T5, zero)){
-			result.x = 0;
-			result.y = 0;
-			result.z = 0;
+			result.x = zero;
+			result.y = zero;
+			result.z = zero;
 			return result;
 		} else{
-			result.x = 1;
-			result.y = 1;
-			result.z = 0;
+			result.x = zero;
+			result.y = zero;
+			result.z = zero;
 			return result;
 		}
 	}
