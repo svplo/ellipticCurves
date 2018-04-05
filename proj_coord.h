@@ -5,6 +5,10 @@ struct proj_coord {
 };
 
 typedef struct proj_coord proj_coord;
+//#define A fromChar("000000000000000000003",DIGITS)
+//#define B fromChar("000000000000000000011",DIGITS)
+#define A fromChar("039C95E6DDDB1BC45733C",DIGITS)
+#define B fromChar("01F16D880E89D5A1C0ED1",DIGITS)
 
 uint8_t equalCoord(proj_coord a, proj_coord b){
 	if(!isEqual(a.x, b.x)){
@@ -19,7 +23,7 @@ uint8_t equalCoord(proj_coord a, proj_coord b){
 	return 1;
 }
 
-proj_coord pointDoubling(proj_coord c, number p, number a, number b){
+proj_coord pointDoubling(proj_coord c, number p){
 	proj_coord result;
 	number T1 = c.x;
 	number T2 = c.y;
@@ -40,32 +44,32 @@ proj_coord pointDoubling(proj_coord c, number p, number a, number b){
 	number pMinus3 = subtract(p, three);
 	number T4;	
 	number T5;	
-	if(isEqual(a, pMinus3)){
-		T4 = mult(T3, T3);
+	if(isEqual(A, pMinus3)){
+		T4 = multMontgomery(T3, T3);
 		T5 = subtract(T1, T4);
 		T4 = add(T1, T4);	
-		T5 = mult(T4, T5);
-		T4 = mult(three, T5);
+		T5 = multMontgomery(T4, T5);
+		T4 = multMontgomery(three, T5);
 	} else {
-		T4 = a;
-		T5 = mult(T3, T3);
-		T5 = mult(T5, T5);
-		T5 = mult(T4, T5);
-		T4 = mult(T1, T1);
-		T4 = mult(three, T4);
+		T4 = A;
+		T5 = multMontgomery(T3, T3);
+		T5 = multMontgomery(T5, T5);
+		T5 = multMontgomery(T4, T5);
+		T4 = multMontgomery(T1, T1);
+		T4 = multMontgomery(three, T4);
 		T4 = add(T4, T5);	
 	}
-	T3 = mult(T2, T3);
-	T3 = mult(two, T3);
-	T2 = mult(T2, T2);
-	T5 = mult(T1, T2);
-	T5 = mult(four, T5);
-	T1 = mult(T4, T4);
-	T1 = subtract(T1, mult(two, T5));
-	T2 = mult(T2, T2);
-	T2 = mult(eight, T2);
+	T3 = multMontgomery(T2, T3);
+	T3 = multMontgomery(two, T3);
+	T2 = multMontgomery(T2, T2);
+	T5 = multMontgomery(T1, T2);
+	T5 = multMontgomery(four, T5);
+	T1 = multMontgomery(T4, T4);
+	T1 = subtract(T1, multMontgomery(two, T5));
+	T2 = multMontgomery(T2, T2);
+	T2 = multMontgomery(eight, T2);
 	T5 = subtract(T5, T1);
-	T5 = mult(T4, T5);
+	T5 = multMontgomery(T4, T5);
 	T2 = subtract(T5, T2);
 	result.x = T1;
 	result.y = T2;
@@ -73,7 +77,7 @@ proj_coord pointDoubling(proj_coord c, number p, number a, number b){
 	return result;
 }
 
-proj_coord pointAddition(proj_coord g, proj_coord h, number p, number a, number b){
+proj_coord pointAddition(proj_coord g, proj_coord h){
 	number zero = fromChar("00000000000000000000", DIGITS);
 	number one = fromChar("00000000000000000001", DIGITS);
 	number two = fromChar("00000000000000000001", DIGITS);
@@ -89,15 +93,15 @@ proj_coord pointAddition(proj_coord g, proj_coord h, number p, number a, number 
 	number T7;
 	if(!isEqual(h.z, one)){
 		T6 = h.z;
-		T7 = mult(T6, T6);
-		T1 = mult(T1, T7);
-		T7 = mult(T6, T7);
-		T2 = mult(T2, T7);
+		T7 = multMontgomery(T6, T6);
+		T1 = multMontgomery(T1, T7);
+		T7 = multMontgomery(T6, T7);
+		T2 = multMontgomery(T2, T7);
 	}
-	T7 = mult(T3,T3);
-	T4 = mult(T4, T7);
-	T7 = mult(T3, T7);
-	T5 = mult(T5, T7);
+	T7 = multMontgomery(T3,T3);
+	T4 = multMontgomery(T4, T7);
+	T7 = multMontgomery(T3, T7);
+	T5 = multMontgomery(T5, T7);
 	T4 = subtract(T1, T4);
 	T5 = subtract(T2, T5);
 	if(isEqual(T4, zero)){
@@ -114,19 +118,19 @@ proj_coord pointAddition(proj_coord g, proj_coord h, number p, number a, number 
 		}
 	}
 
-	T1 = subtract(mult(two, T1), T4);
-	T2 = subtract(mult(two, T2), T5);
+	T1 = subtract(multMontgomery(two, T1), T4);
+	T2 = subtract(multMontgomery(two, T2), T5);
 	if(!isEqual(h.z, one)){
-		T3 = mult(T3, T6);
+		T3 = multMontgomery(T3, T6);
 	}
-	T3 = mult(T3, T4);
-	T7 = mult(T4, T4);
-	T4 = mult(T4, T7);
-	T7 = mult(T1, T7);
-	T1 = mult(T5, T5);
-	T1 = subtract(T7, mult(two, T1));
-	T5 = mult(T5, T7);
-	T4 = mult(T2, T4);
+	T3 = multMontgomery(T3, T4);
+	T7 = multMontgomery(T4, T4);
+	T4 = multMontgomery(T4, T7);
+	T7 = multMontgomery(T1, T7);
+	T1 = multMontgomery(T5, T5);
+	T1 = subtract(T7, multMontgomery(two, T1));
+	T5 = multMontgomery(T5, T7);
+	T4 = multMontgomery(T2, T4);
 	T2 = subtract(T5, T4);
 	T2  = leftShift(T2, 1); // divide by 2
 	result.x = T1;
