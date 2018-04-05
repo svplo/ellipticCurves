@@ -171,6 +171,23 @@ number leftShift(number a, uint8_t b){
 	return result;
 }
 
+number divideByTwo(number a){
+	number result = a;
+	uint8_t carry = result.val[DIGITS - 1] & 1;
+	result.val[DIGITS - 1] = result.val[DIGITS - 1] >> 1;
+
+	for (int i = DIGITS - 2; i >= 0; --i){
+		uint8_t carry2 = result.val[i] & 1;
+		result.val[i] = result.val[i] >> 1;
+		if(carry == 1){
+			result.val[i] += 16;
+		}
+		carry = carry2;
+	}
+
+	return result;
+}
+
 number mult(number a, number b){
 	number result = fromChar(ZERO, DIGITS);
 	number p = fromChar(PRIME, DIGITS);
@@ -199,8 +216,7 @@ number subtract(number a, number b){
 	}   
 	for (int i = 0; i < DIGITS; ++i) {
 	  if (a.val[i] < b.val[i] + carry) {
-		  //decimal
-		  result.val[i] = (10 + a.val[i]) - b.val[i] - carry;
+		  result.val[i] = (16 + a.val[i]) - b.val[i] - carry;
 		  carry = 1;
 	  } else {
 		  result.val[i] = a.val[i] - b.val[i] - carry;
