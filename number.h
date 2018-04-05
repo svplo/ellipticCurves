@@ -179,9 +179,7 @@ number divideByTwo(number a){
 	for (int i = DIGITS - 2; i >= 0; --i){
 		uint8_t carry2 = result.val[i] & 1;
 		result.val[i] = result.val[i] >> 1;
-		if(carry == 1){
-			result.val[i] += 16;
-		}
+		result.val[i] |= (carry << 3);
 		carry = carry2;
 	}
 
