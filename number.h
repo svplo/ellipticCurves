@@ -5,10 +5,14 @@ typedef int bool;
 #define true 1
 #define false 0
 
+#define ZERO "000000000000000000000"
+#define TWO "000000000000000000002"
 #define DIGITS 21
-#define RADIX "10000000000000000000"
-#define PRIME "062CE5177412ACA899CF5"
+//#define RADIX "10000000000000000000"
+//#define PRIME "062CE5177412ACA899CF5"
 
+#define RADIX "000000000000000000064"
+#define PRIME "000000000000000000061"
 struct number {
 	uint8_t val[DIGITS];
 };
@@ -130,10 +134,33 @@ number add(number a, number b){
 	return modulo(result);
 }
 
-number mult(number a, number b){
-	number result;
+number bitMult(int bit, number a){
+	number result = fromChar(ZERO, DIGITS);
+
+	for(int i = 0; i < bit; ++i){
+		result = add(result,a);
+	}	
+
 	return result;
 }
+
+number multNormal(number a, number b){
+	number result = fromChar(ZERO, DIGITS);
+	number p = fromChar(PRIME, DIGITS);
+
+	for (int i = DIGITS - 1; i >= 0; --i){
+		result = add(leftShift(result, 1), bitMult(b.val[i], a));
+		if(isGreaterEqual(result, p)){
+			subtract(result, p);
+		}
+		if(isGreaterEqual(result, p)){
+			subtract(result, p);
+		}
+	}
+		
+	return result;
+}
+
 number leftShift(number a, uint8_t b){
 	number result;
 
@@ -141,6 +168,23 @@ number leftShift(number a, uint8_t b){
 		result.val[(i+b) % DIGITS] = a.val[i];
 	}
 
+	return result;
+}
+
+number mult(number a, number b){
+	number result = fromChar(ZERO, DIGITS);
+	number p = fromChar(PRIME, DIGITS);
+
+	for (int i = DIGITS - 1; i >= 0; --i){
+		result = add(leftShift(result, 1), bitMult(b.val[i], a));
+		if(isGreaterEqual(result, p)){
+			subtract(result, p);
+		}
+		if(isGreaterEqual(result, p)){
+			subtract(result, p);
+		}
+	}
+		
 	return result;
 }
 
@@ -164,9 +208,9 @@ number subtract(number a, number b){
 	  }   
 	}   
 
-	return result;
+	return modulo(result);
 }
 
 number toMontgomery(number a){
-	return mult(a, fromChar(RADIX, DIGITS));		
+	return multNormal(a, fromChar(RADIX, DIGITS));		
 }

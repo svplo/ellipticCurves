@@ -23,8 +23,11 @@ int main(int argc, char **argv) {
 	number_rep a_rep = toChar(a);
 	printf("before %s, after %s\n", argv[1], a_rep.digits);
 	number b = fromChar(second_number, strlen(second_number));
-	number c = add(a,b);
-	printf("addMont of %s and %s equals %s\n", a_rep.digits, argv[2], toChar(c).digits);
+	//number a1 = toMontgomery(a);
+	//number b1 = toMontgomery(b);
+	//printf("a1 %s and b1 %s .\n", toChar(a1).digits, toChar(b1).digits);
+	number c = subtract(a,b);
+	printf("sub of %s and %s equals %s\n", a_rep.digits, argv[2], toChar(c).digits);
 	//number c = getInverse(a);
 	//printf("inverse of %s equals %s\n", a_rep.digits, toChar(c).digits);
 
