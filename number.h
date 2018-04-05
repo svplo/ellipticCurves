@@ -1,7 +1,13 @@
 #include "inttypes.h"
 #include <assert.h>
 
-#define DIGITS 20
+typedef int bool;
+#define true 1
+#define false 0
+
+#define DIGITS 21
+#define RADIX "10000000000000000000"
+#define PRIME "062CE5177412ACA899CF5"
 
 struct number {
 	uint8_t val[DIGITS];
@@ -17,6 +23,7 @@ typedef struct number_rep number_rep;
 number add(number, number);
 number mult(number, number);
 number leftShift(number, uint8_t);
+number subtract(number, number);
 
 /** NUMBER FORMATTING */
 number fromChar(char *string, int size) {
@@ -54,8 +61,6 @@ number_rep toChar(number a) {
 };
 
 /** NUMBER ARITHMETIC */
-// true = 1
-// false = 0
 uint8_t isEqual (number a, number b){
 	for(int i = DIGITS - 1; i >= 0; --i){
 		if(a.val[i] != b.val[i]){
@@ -68,22 +73,25 @@ uint8_t isEqual (number a, number b){
 uint8_t isGreaterEqual(number a, number b){
 	for(int i = DIGITS - 1; i >= 0; --i){
 		if(a.val[i] < b.val[i]){
-			return 0;
+			return false;
 		}
 		if(a.val[i] > b.val[i]){
-			return 1;
+			return true;
 		}
 	}
-	return 1;
+	return true;
 }
 
 uint8_t isGreater(number a, number b){
 	for(int i = DIGITS - 1; i >= 0; --i){
+		if(a.val[i] < b.val[i]){
+			return false;
+		}
 		if(a.val[i] > b.val[i]){
-			return 1;
+			return true;
 		}
 	}
-	return 0;
+	return false;
 }
 
 uint8_t isEven (number a){
@@ -94,9 +102,32 @@ uint8_t endsWithZero (number a){
 	return a.val[0] == 0;
 }
 
+number modulo(number a){
+	number result = a;
+	number p = fromChar(PRIME, DIGITS);
+	while(isGreaterEqual(result, p)){
+		result = subtract(result, p);	
+	}
+	return result;
+}
+
 number add(number a, number b){
 	number result;
-	return result;
+
+	number reducedA = modulo(a);
+	number reducedB = modulo(b);
+
+	uint8_t carry = 0;
+	for(int i = 0; i < DIGITS; ++i){
+		result.val[i] = reducedA.val[i] + reducedB.val[i] + carry;
+		carry = 0;
+		if(result.val[i] >= 16){
+			result.val[i] -= 16;
+			carry = 1;
+		}
+	}
+
+	return modulo(result);
 }
 
 number mult(number a, number b){
@@ -105,10 +136,37 @@ number mult(number a, number b){
 }
 number leftShift(number a, uint8_t b){
 	number result;
+
+	for(int i = 0; i < DIGITS; ++i){
+		result.val[(i+b) % DIGITS] = a.val[i];
+	}
+
 	return result;
 }
 
 number subtract(number a, number b){
 	number result;
+	number p = fromChar(PRIME, DIGITS);
+
+	uint8_t carry = 0;
+	if(isGreater(b, a)){
+		b = subtract(p, b); 
+		return add(a,b);
+	}   
+	for (int i = 0; i < DIGITS; ++i) {
+	  if (a.val[i] < b.val[i] + carry) {
+		  //decimal
+		  result.val[i] = (10 + a.val[i]) - b.val[i] - carry;
+		  carry = 1;
+	  } else {
+		  result.val[i] = a.val[i] - b.val[i] - carry;
+		  carry = 0;
+	  }   
+	}   
+
 	return result;
+}
+
+number toMontgomery(number a){
+	return mult(a, fromChar(RADIX, DIGITS));		
 }
