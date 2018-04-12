@@ -8,7 +8,7 @@ typedef int bool;
 #define ZERO "000000000000000000000"
 #define TWO "000000000000000000002"
 #define DIGITS 21
-#define RADIX "10000000000000000000"
+#define RADIX "80000000000000000000"
 #define PRIME "062CE5177412ACA899CF5"
 
 //#define RADIX "000000000000000000064"
@@ -115,6 +115,21 @@ number modulo(number a){
 	return result;
 }
 
+number addNoMod(number a, number b){
+	number result;
+
+	uint8_t carry = 0;
+	for(int i = 0; i < DIGITS; ++i){
+		result.val[i] = a.val[i] + b.val[i] + carry;
+		carry = 0;
+		if(result.val[i] >= 16){
+			result.val[i] -= 16;
+			carry = 1;
+		}
+	}
+	return result;
+}
+
 number add(number a, number b){
 	number result;
 
@@ -134,40 +149,22 @@ number add(number a, number b){
 	return modulo(result);
 }
 
+number bitMultNoMod(int bit, number a){
+	number result = fromChar(ZERO, DIGITS);
+
+	for(int i = 0; i < bit; ++i){
+		result = addNoMod(result,a);
+	}	
+
+	return result;
+}
+
 number bitMult(int bit, number a){
 	number result = fromChar(ZERO, DIGITS);
 
 	for(int i = 0; i < bit; ++i){
 		result = add(result,a);
 	}	
-
-	return result;
-}
-
-number multNormal(number a, number b){
-	number result = fromChar(ZERO, DIGITS);
-	number p = fromChar(PRIME, DIGITS);
-
-	for (int i = DIGITS - 1; i >= 0; --i){
-		result = add(leftShift(result, 1), bitMult(b.val[i], a));
-		if(isGreaterEqual(result, p)){
-			result = subtract(result, p);
-		}
-		if(isGreaterEqual(result, p)){
-			//reassigning result?
-			result = subtract(result, p);
-		}
-	}
-		
-	return result;
-}
-
-number leftShift(number a, uint8_t b){
-	number result;
-
-	for(int i = 0; i < DIGITS; ++i){
-		result.val[(i+b) % DIGITS] = a.val[i];
-	}
 
 	return result;
 }
@@ -187,16 +184,64 @@ number divideByTwo(number a){
 	return result;
 }
 
+number multNormal(number a, number b){
+	number result = fromChar(ZERO, DIGITS);
+	number p = fromChar(PRIME, DIGITS);
+
+	for (int i = DIGITS - 1; i >= 0; --i){
+		result = add(divideByTwo(result), bitMult(b.val[i], a));
+		if(isGreaterEqual(result, p)){
+			result = subtract(result, p);
+		}
+		if(isGreaterEqual(result, p)){
+			//reassigning result?
+			result = subtract(result, p);
+		}
+	}
+		
+	return result;
+}
+
+uint8_t getBit(uint8_t a, uint8_t b){
+	return ((a & (1 << b)) >> b);	
+}
+
 number multMontgomery(number a, number b){
 	number result = fromChar(ZERO, DIGITS);
 	number p = fromChar(PRIME, DIGITS);
 
-	for (int i = 0; i < DIGITS; ++i){
-		result = add(result, bitMult(a.val[i], b));
-		result = divideByTwo(add(result, bitMult(result.val[0], p)));
-		if(isGreaterEqual(result, p)){
-			result = subtract(result, p);
+	uint8_t len = DIGITS * 4;
+	bool br = false;
+	for(int i = DIGITS - 1; i >= 0; --i){
+		for(int j = 3; j >= 0; --j){
+			if(((a.val[i] & (1 << j)) >> j) == 0){
+				len--;
+			} else {
+				br = true;
+				break;
+			}
 		}
+		if(br){
+			break;
+		}
+	}
+
+	number t1;
+	number t2;
+	number t3;
+	for (int i = 0; i < len; ++i){
+		t3 = result;
+		t2 = bitMultNoMod(getBit(a.val[i/4], i%4), b);
+		t3 = addNoMod(t3, t2);
+		uint8_t tt = getBit(t3.val[0], 0);
+		t2 = bitMultNoMod(tt, p);
+		t1 = addNoMod(t3, t2);
+		t3 = divideByTwo(t1);
+		result = addNoMod(result, bitMultNoMod(getBit(a.val[i/4], i % 4), b));
+		result = divideByTwo(addNoMod(result, bitMultNoMod(getBit(result.val[0], 0), p)));
+	}
+	if(isGreaterEqual(result, p)){
+		result = subtract(result, p);
 	}
 		
 	return result;

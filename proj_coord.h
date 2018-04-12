@@ -132,11 +132,10 @@ proj_coord pointAddition(proj_coord g, proj_coord h){
 	T5 = multMontgomery(T5, T7);
 	T4 = multMontgomery(T2, T4);
 	T2 = subtract(T5, T4);
-	T2  = leftShift(T2, 1); // divide by 2
+	T2  = divideByTwo(T2);
 	result.x = T1;
 	result.y = T2;
 	result.z = T3;
 
 	return result;
 }
-

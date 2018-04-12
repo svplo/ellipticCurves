@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
 	//number a1 = toMontgomery(a);
 	//number b1 = toMontgomery(b);
 	//printf("a1 %s and b1 %s .\n", toChar(a1).digits, toChar(b1).digits);
-	number a1 = multMontgomery(a,b);
+	number a1 = multMontgomery(a, b);
 	printf("multMont of %s and %s is %s \n", toChar(a).digits, toChar(b).digits, toChar(a1).digits);
 	//number c = getInverse(a);
 	//printf("inverse of %s equals %s\n", a_rep.digits, toChar(c).digits);
