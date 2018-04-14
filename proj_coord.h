@@ -6,10 +6,8 @@ struct proj_coord {
 typedef struct proj_coord proj_coord;
 //#define A fromChar("000000000000000000003",DIGITS)
 //#define B fromChar("000000000000000000011",DIGITS)
-#define P fromChar("000000000000000000011", DIGITS)
 #define A fromChar("039C95E6DDDB1BC45733C", DIGITS)
 #define B fromChar("01F16D880E89D5A1C0ED1", DIGITS)
-#define ONE "00000000000000000001"
 
 uint8_t equalCoord(proj_coord a, proj_coord b){
 	if(!isEqual(a.x, b.x)){
@@ -42,7 +40,7 @@ proj_coord pointDoubling(proj_coord c){
 	number three = fromChar("00000000000000000003", DIGITS);
 	number four = fromChar("00000000000000000004", DIGITS);
 	number eight = fromChar("00000000000000000008", DIGITS);
-	number pMinus3 = subtract(P, three);
+	number pMinus3 = subtract(PRIME, three);
 	number T4;	
 	number T5;	
 	if(isEqual(A, pMinus3)){
@@ -79,10 +77,7 @@ proj_coord pointDoubling(proj_coord c){
 }
 
 proj_coord pointAddition(proj_coord g, proj_coord h){
-	number zero = fromChar("00000000000000000000", DIGITS);
-	number one = fromChar("00000000000000000001", DIGITS);
-	number two = fromChar("00000000000000000001", DIGITS);
-	assert(!isEqual(zero, g.z) && !isEqual(zero, h.z));
+	assert(!isEqual(ZERO, g.z) && !isEqual(ZERO, h.z));
 	proj_coord result;
 
 	number T1 = g.x;
@@ -92,7 +87,7 @@ proj_coord pointAddition(proj_coord g, proj_coord h){
 	number T5 = h.y;
 	number T6;
 	number T7;
-	if(!isEqual(h.z, one)){
+	if(!isEqual(h.z, ONE)){
 		T6 = h.z;
 		T7 = multMontgomery(T6, T6);
 		T1 = multMontgomery(T1, T7);
@@ -105,23 +100,23 @@ proj_coord pointAddition(proj_coord g, proj_coord h){
 	T5 = multMontgomery(T5, T7);
 	T4 = subtract(T1, T4);
 	T5 = subtract(T2, T5);
-	if(isEqual(T4, zero)){
-		if(isEqual(T5, zero)){
-			result.x = zero;
-			result.y = zero;
-			result.z = zero;
+	if(isEqual(T4, ZERO)){
+		if(isEqual(T5, ZERO)){
+			result.x = ZERO;
+			result.y = ZERO;
+			result.z = ZERO;
 			return result;
 		} else{
-			result.x = zero;
-			result.y = zero;
-			result.z = zero;
+			result.x = ZERO;
+			result.y = ZERO;
+			result.z = ZERO;
 			return result;
 		}
 	}
 
-	T1 = subtract(multMontgomery(two, T1), T4);
-	T2 = subtract(multMontgomery(two, T2), T5);
-	if(!isEqual(h.z, one)){
+	T1 = subtract(multMontgomery(TWO, T1), T4);
+	T2 = subtract(multMontgomery(TWO, T2), T5);
+	if(!isEqual(h.z, ONE)){
 		T3 = multMontgomery(T3, T6);
 	}
 	T3 = multMontgomery(T3, T4);
@@ -129,7 +124,7 @@ proj_coord pointAddition(proj_coord g, proj_coord h){
 	T4 = multMontgomery(T4, T7);
 	T7 = multMontgomery(T1, T7);
 	T1 = multMontgomery(T5, T5);
-	T1 = subtract(T7, multMontgomery(two, T1));
+	T1 = subtract(T7, multMontgomery(TWO, T1));
 	T5 = multMontgomery(T5, T7);
 	T4 = multMontgomery(T2, T4);
 	T2 = subtract(T5, T4);
@@ -143,9 +138,9 @@ proj_coord pointAddition(proj_coord g, proj_coord h){
 
 proj_coord scalar_point_addition(uint8_t scalar, proj_coord a){
 	proj_coord res;
-	res.x = fromChar(ZERO, DIGITS);
-	res.y = fromChar(ZERO, DIGITS);
-	res.z = fromChar(ONE, DIGITS);
+	res.x = ZERO;
+	res.y = ZERO;
+	res.z = ONE;
 
 	for(int i = scalar; i <= 0; ++i){
 		// but after if, if indices are increasing

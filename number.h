@@ -6,15 +6,21 @@ typedef int bool;
 #define true 1
 #define false 0
 
-#define ZERO "000000000000000000000"
-#define TWO "000000000000000000002"
 #define DIGITS 21
+#define ZIFFER fromChar("00000000000000000004F", DIGITS) // 79
+#define ZIFFERINT 79
+
+#define ZERO fromChar("000000000000000000000", DIGITS)
+#define ONE fromChar("000000000000000000001", DIGITS)
+#define TWO fromChar("000000000000000000002", DIGITS)
+#define INF fromChar("fffffffffffffffffffff", DIGITS)
+
 //#define RADIX "80000000000000000000"
 //#define PRIME "062CE5177412ACA899CF5"
 //#define PRIME "000000000000000000007"
-#define RADIX "000000000000000000080"
-#define PRIME "000000000000000000061"
-#define RADIX2 fromChar("000000000000000004000", DIGITS)
+#define RADIX fromChar("000000000000000000064", DIGITS)
+#define PRIME fromChar("000000000000000000061", DIGITS)
+#define RADIX2 fromChar("000000000000000000009", DIGITS)
 
 struct number {
 	uint8_t val[DIGITS];
@@ -110,9 +116,8 @@ uint8_t endsWithZero (number a){
 
 number modulo(number a){
 	number result = a;
-	number p = fromChar(PRIME, DIGITS);
-	while(isGreaterEqual(result, p)){
-		result = subtract(result, p);	
+	while(isGreaterEqual(result, PRIME)){
+		result = subtract(result, PRIME);	
 	}
 	return result;
 }
@@ -152,7 +157,7 @@ number add(number a, number b){
 }
 
 number bitMultNoMod(int bit, number a){
-	number result = fromChar(ZERO, DIGITS);
+	number result = ZERO;
 
 	for(int i = 0; i < bit; ++i){
 		result = addNoMod(result,a);
@@ -162,7 +167,7 @@ number bitMultNoMod(int bit, number a){
 }
 
 number bitMult(int bit, number a){
-	number result = fromChar(ZERO, DIGITS);
+	number result = ZERO;
 
 	for(int i = 0; i < bit; ++i){
 		result = add(result,a);
@@ -187,17 +192,16 @@ number divideByTwo(number a){
 }
 
 number multNormal(number a, number b){
-	number result = fromChar(ZERO, DIGITS);
-	number p = fromChar(PRIME, DIGITS);
+	number result = ZERO;
 
 	for (int i = DIGITS - 1; i >= 0; --i){
 		result = add(divideByTwo(result), bitMult(b.val[i], a));
-		if(isGreaterEqual(result, p)){
-			result = subtract(result, p);
+		if(isGreaterEqual(result, PRIME)){
+			result = subtract(result, PRIME);
 		}
-		if(isGreaterEqual(result, p)){
+		if(isGreaterEqual(result, PRIME)){
 			//reassigning result?
-			result = subtract(result, p);
+			result = subtract(result, PRIME);
 		}
 	}
 		
@@ -209,31 +213,14 @@ uint8_t getBit(uint8_t a, uint8_t b){
 }
 
 number multMontgomery(number a, number b){
-	number result = fromChar(ZERO, DIGITS);
-	number p = fromChar(PRIME, DIGITS);
+	number result = ZERO;
 
-	uint8_t len = 79;
-//	bool br = false;
-//	for(int i = DIGITS - 1; i >= 0; --i){
-//		for(int j = 3; j >= 0; --j){
-//			if(((a.val[i] & (1 << j)) >> j) == 0){
-//				len--;
-//			} else {
-//				br = true;
-//				break;
-//			}
-//		}
-//		if(br){
-//			break;
-//		}
-//	}
-
-	for (int i = 0; i < len; ++i){
+	for (int i = 0; i < ZIFFERINT; ++i){
 		result = addNoMod(result, bitMultNoMod(getBit(a.val[i/4], i % 4), b));
-		result = divideByTwo(addNoMod(result, bitMultNoMod(getBit(result.val[0], 0), p)));
+		result = divideByTwo(addNoMod(result, bitMultNoMod(getBit(result.val[0], 0), PRIME)));
 	}
-	if(isGreaterEqual(result, p)){
-		result = subtract(result, p);
+	if(isGreaterEqual(result, PRIME)){
+		result = subtract(result, PRIME);
 	}
 		
 	return result;
@@ -241,11 +228,10 @@ number multMontgomery(number a, number b){
 
 number subtract(number a, number b){
 	number result;
-	number p = fromChar(PRIME, DIGITS);
 
 	uint8_t carry = 0;
 	if(isGreater(b, a)){
-		b = subtract(p, b); 
+		b = subtract(PRIME, b); 
 		return add(a,b);
 	}   
 	for (int i = 0; i < DIGITS; ++i) {
@@ -262,7 +248,7 @@ number subtract(number a, number b){
 }
 
 number mult(number a, number b){
-	number result = fromChar(ZERO, DIGITS);
+	number result = ZERO;
 
 	for (int i = DIGITS - 1; i >= 0; --i){
 		result = addNoMod(divideByTwo(result), bitMultNoMod(b.val[i], a));
@@ -272,8 +258,48 @@ number mult(number a, number b){
 }
 
 number toMontgomery(number a){
-	number r = fromChar(RADIX, DIGITS);
-	number r2 = mult(r, r);
-	printf("r2 is %s \n",  toChar(r2).digits);
-	return multMontgomery(a, r2);
+	return multMontgomery(RADIX2, a);
 }
+
+//output gcd(a,b) > 1 (no inverse exists) or |b^(-1) * 2^n| mod a = mont(b^(-1)) mod a
+number mmInverse(number a, number b){
+	number u = a;
+	number v = b;
+	number r = ZERO;
+	number s = ONE;
+	number k = ZERO;
+	while(isGreater(v, ZERO)){
+		if(isEven(u)){
+			u = divideByTwo(u);
+			s = multNormal(s, TWO);
+		} else if (isEven(v)){
+			v = divideByTwo(v);
+			r = multNormal(r, TWO);
+		} else if (isGreater(u, v)){
+			u = divideByTwo(subtract(u, v));
+			r = add(r,s);
+			s = multNormal(s, TWO);
+		} else {
+			v = divideByTwo(subtract(v, u));
+			s = add(r,s);
+			r = multNormal(r, TWO);
+		}
+		k = add(k, ONE);
+	}
+	if(! isEqual(u, ONE)){
+		return INF; // a and b are not relatively prime
+	}
+	if(isGreaterEqual(r, a)){
+		r = subtract(r,a);
+	}
+	while(isGreater(k, ZIFFER)){
+		if(isEven(r)){
+			r = divideByTwo(r);
+		} else {
+			r = divideByTwo(add(r,a));
+		}
+		k = subtract(k, ONE);
+	}
+	return subtract(a,r);
+}
+

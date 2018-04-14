@@ -30,6 +30,7 @@ int main(int argc, char **argv) {
 	//number a1 = multMontgomery(toMontgomery(a), toMontgomery(b));
 	number a1 = multMontgomery(a, b);
 	printf("multMont of %s and %s is %s \n", toChar(toMontgomery(a)).digits, toChar(toMontgomery(b)).digits, toChar(a1).digits);
+	//printf("Mont of %s and %s \n", toChar(toMontgomery(a)).digits, toChar(toMontgomery(b)).digits);
 	//number c = getInverse(a);
 	//printf("inverse of %s equals %s\n", a_rep.digits, toChar(c).digits);
 
