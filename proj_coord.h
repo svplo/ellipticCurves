@@ -3,12 +3,13 @@
 struct proj_coord {
 	number x, y, z;
 };
-
 typedef struct proj_coord proj_coord;
 //#define A fromChar("000000000000000000003",DIGITS)
 //#define B fromChar("000000000000000000011",DIGITS)
-#define A fromChar("039C95E6DDDB1BC45733C",DIGITS)
-#define B fromChar("01F16D880E89D5A1C0ED1",DIGITS)
+#define P fromChar("000000000000000000011", DIGITS)
+#define A fromChar("039C95E6DDDB1BC45733C", DIGITS)
+#define B fromChar("01F16D880E89D5A1C0ED1", DIGITS)
+#define ONE "00000000000000000001"
 
 uint8_t equalCoord(proj_coord a, proj_coord b){
 	if(!isEqual(a.x, b.x)){
@@ -23,7 +24,7 @@ uint8_t equalCoord(proj_coord a, proj_coord b){
 	return 1;
 }
 
-proj_coord pointDoubling(proj_coord c, number p){
+proj_coord pointDoubling(proj_coord c){
 	proj_coord result;
 	number T1 = c.x;
 	number T2 = c.y;
@@ -41,7 +42,7 @@ proj_coord pointDoubling(proj_coord c, number p){
 	number three = fromChar("00000000000000000003", DIGITS);
 	number four = fromChar("00000000000000000004", DIGITS);
 	number eight = fromChar("00000000000000000008", DIGITS);
-	number pMinus3 = subtract(p, three);
+	number pMinus3 = subtract(P, three);
 	number T4;	
 	number T5;	
 	if(isEqual(A, pMinus3)){
@@ -138,4 +139,20 @@ proj_coord pointAddition(proj_coord g, proj_coord h){
 	result.z = T3;
 
 	return result;
+}
+
+proj_coord scalar_point_addition(uint8_t scalar, proj_coord a){
+	proj_coord res;
+	res.x = fromChar(ZERO, DIGITS);
+	res.y = fromChar(ZERO, DIGITS);
+	res.z = fromChar(ONE, DIGITS);
+
+	for(int i = scalar; i <= 0; ++i){
+		// but after if, if indices are increasing
+		res = pointDoubling(res);
+		if(getBit(scalar, i) == 1){
+			res = pointAddition(a, res);	
+		}		
+	}
+	return res;
 }

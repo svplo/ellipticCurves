@@ -1,4 +1,5 @@
 #include "inttypes.h"
+#include <stdio.h>
 #include <assert.h>
 
 typedef int bool;
@@ -8,11 +9,13 @@ typedef int bool;
 #define ZERO "000000000000000000000"
 #define TWO "000000000000000000002"
 #define DIGITS 21
-#define RADIX "80000000000000000000"
-#define PRIME "062CE5177412ACA899CF5"
+//#define RADIX "80000000000000000000"
+//#define PRIME "062CE5177412ACA899CF5"
+//#define PRIME "000000000000000000007"
+#define RADIX "000000000000000000080"
+#define PRIME "000000000000000000061"
+#define RADIX2 fromChar("000000000000000004000", DIGITS)
 
-//#define RADIX "000000000000000000064"
-//#define PRIME "000000000000000000061"
 struct number {
 	uint8_t val[DIGITS];
 };
@@ -25,7 +28,6 @@ typedef struct number number;
 typedef struct number_rep number_rep;
 
 number add(number, number);
-number mult(number, number);
 number leftShift(number, uint8_t);
 number subtract(number, number);
 
@@ -210,33 +212,23 @@ number multMontgomery(number a, number b){
 	number result = fromChar(ZERO, DIGITS);
 	number p = fromChar(PRIME, DIGITS);
 
-	uint8_t len = DIGITS * 4;
-	bool br = false;
-	for(int i = DIGITS - 1; i >= 0; --i){
-		for(int j = 3; j >= 0; --j){
-			if(((a.val[i] & (1 << j)) >> j) == 0){
-				len--;
-			} else {
-				br = true;
-				break;
-			}
-		}
-		if(br){
-			break;
-		}
-	}
+	uint8_t len = 79;
+//	bool br = false;
+//	for(int i = DIGITS - 1; i >= 0; --i){
+//		for(int j = 3; j >= 0; --j){
+//			if(((a.val[i] & (1 << j)) >> j) == 0){
+//				len--;
+//			} else {
+//				br = true;
+//				break;
+//			}
+//		}
+//		if(br){
+//			break;
+//		}
+//	}
 
-	number t1;
-	number t2;
-	number t3;
 	for (int i = 0; i < len; ++i){
-		t3 = result;
-		t2 = bitMultNoMod(getBit(a.val[i/4], i%4), b);
-		t3 = addNoMod(t3, t2);
-		uint8_t tt = getBit(t3.val[0], 0);
-		t2 = bitMultNoMod(tt, p);
-		t1 = addNoMod(t3, t2);
-		t3 = divideByTwo(t1);
 		result = addNoMod(result, bitMultNoMod(getBit(a.val[i/4], i % 4), b));
 		result = divideByTwo(addNoMod(result, bitMultNoMod(getBit(result.val[0], 0), p)));
 	}
@@ -269,6 +261,19 @@ number subtract(number a, number b){
 	return modulo(result);
 }
 
+number mult(number a, number b){
+	number result = fromChar(ZERO, DIGITS);
+
+	for (int i = DIGITS - 1; i >= 0; --i){
+		result = addNoMod(divideByTwo(result), bitMultNoMod(b.val[i], a));
+	}
+		
+	return result;
+}
+
 number toMontgomery(number a){
-	return multNormal(a, fromChar(RADIX, DIGITS));		
+	number r = fromChar(RADIX, DIGITS);
+	number r2 = mult(r, r);
+	printf("r2 is %s \n",  toChar(r2).digits);
+	return multMontgomery(a, r2);
 }
