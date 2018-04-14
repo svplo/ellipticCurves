@@ -4,10 +4,11 @@ struct proj_coord {
 	number x, y, z;
 };
 typedef struct proj_coord proj_coord;
-//#define A fromChar("000000000000000000003",DIGITS)
-//#define B fromChar("000000000000000000011",DIGITS)
+//test values
 #define A fromChar("039C95E6DDDB1BC45733C", DIGITS)
 #define B fromChar("01F16D880E89D5A1C0ED1", DIGITS)
+//#define A fromChar("000000000000000000003",DIGITS)
+//#define B fromChar("000000000000000000011",DIGITS)
 
 uint8_t equalCoord(proj_coord a, proj_coord b){
 	if(!isEqual(a.x, b.x)){
@@ -27,20 +28,14 @@ proj_coord pointDoubling(proj_coord c){
 	number T1 = c.x;
 	number T2 = c.y;
 	number T3 = c.z;
-	number zero = fromChar("00000000000000000000", DIGITS);
-	number one = fromChar("00000000000000000001", DIGITS);
-	number two = fromChar("00000000000000000002", DIGITS);
-	if(isEqual(T2, zero) || isEqual(T3, zero)){
-		result.x = one;
-		result.y = one;
-		result.z = zero;
+	if(isEqual(T2, ZERO) || isEqual(T3, ZERO)){
+		result.x = ONE;
+		result.y = ONE;
+		result.z = ZERO;
 		// return infinite point
 		return result;	
 	}
-	number three = fromChar("00000000000000000003", DIGITS);
-	number four = fromChar("00000000000000000004", DIGITS);
-	number eight = fromChar("00000000000000000008", DIGITS);
-	number pMinus3 = subtract(PRIME, three);
+	number pMinus3 = subtract(PRIME, THREE);
 	number T4;	
 	number T5;	
 	if(isEqual(A, pMinus3)){
@@ -48,25 +43,25 @@ proj_coord pointDoubling(proj_coord c){
 		T5 = subtract(T1, T4);
 		T4 = add(T1, T4);	
 		T5 = multMontgomery(T4, T5);
-		T4 = multMontgomery(three, T5);
+		T4 = multMontgomery(THREE, T5);
 	} else {
 		T4 = A;
 		T5 = multMontgomery(T3, T3);
 		T5 = multMontgomery(T5, T5);
 		T5 = multMontgomery(T4, T5);
 		T4 = multMontgomery(T1, T1);
-		T4 = multMontgomery(three, T4);
+		T4 = multMontgomery(THREE, T4);
 		T4 = add(T4, T5);	
 	}
 	T3 = multMontgomery(T2, T3);
-	T3 = multMontgomery(two, T3);
+	T3 = multMontgomery(TWO, T3);
 	T2 = multMontgomery(T2, T2);
 	T5 = multMontgomery(T1, T2);
-	T5 = multMontgomery(four, T5);
+	T5 = multMontgomery(FOUR, T5);
 	T1 = multMontgomery(T4, T4);
-	T1 = subtract(T1, multMontgomery(two, T5));
+	T1 = subtract(T1, multMontgomery(TWO, T5));
 	T2 = multMontgomery(T2, T2);
-	T2 = multMontgomery(eight, T2);
+	T2 = multMontgomery(EIGHT, T2);
 	T5 = subtract(T5, T1);
 	T5 = multMontgomery(T4, T5);
 	T2 = subtract(T5, T2);
